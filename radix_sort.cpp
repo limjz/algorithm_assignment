@@ -75,6 +75,7 @@ void sortByDigit(vector<Record>& arr, int position) {
 
 // loop from ones to billions to sort it 
 void radixSort(vector<Record>& arr) {
+
     // d = digit position, from 10 (ones) down to 1 (billions)
     for (int d = 10; d >= 1; d--) {
         sortByDigit(arr, d);
@@ -109,13 +110,39 @@ vector<Record> readCSV(string filename) {
 }
 
 // write to CSV file
-void writeCSV(vector<Record> arr, string filename) {
+bool writeCSV(vector<Record> arr, string filename) {
+    
     ofstream file(filename);
+
+    if (!file) {
+        cout << "Error: Cannot create output file." << endl;
+        return false;
+    }
+
     for (int i = 0; i < arr.size(); i++) {
         file << arr[i].number << "," << arr[i].word << "\n";
     }
+
     file.close();
+    return true;
 }
+
+void writeTime (string filename, double elapsedTime, int inputSize) {
+    
+    ofstream timeFile (filename, ios::app); // open in append mode
+    
+    if (!timeFile) {
+        cout << "Error: Cannot write running time to file." << endl;
+        return;
+    
+    }
+    timeFile << "\n";
+    timeFile << "# Running time: " << elapsedTime << " seconds\n";
+    timeFile << "# Input size: "   << inputSize << " records\n";
+    timeFile.close();
+
+}
+
 
 
 int main(int argc, char* argv[]) {
@@ -187,7 +214,19 @@ int main(int argc, char* argv[]) {
 
 
     string outputFile = outputFolder + "radix_sorted_" + justFilename;
-    writeCSV(data, outputFile);
+    bool writeSuccess = writeCSV(data, outputFile);
+
+    if (!writeSuccess) {
+        cout << "Error: Failed to write sorted output to file." << endl;
+        return 1;
+    }
+
+    writeTime(outputFile, elapsed.count(), data.size()); //output the running time at bottom of csv file
+
+
+
+
+
     cout << "Sorted output saved as: " << outputFile << endl;
 
     return 0;

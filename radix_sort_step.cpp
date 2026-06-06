@@ -111,11 +111,47 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
     return data;
 }
 
+// only allow user to enter interger in the startRow and endRow input 
+int getIntInput(string message) {
+    int number;
+    while (true) {
+        cout << message;
+        cin >> number;
+
+        if (cin.fail()) {
+            // User typed something that is not a number
+            cin.clear();            // reset cin from fail state
+            cin.ignore(1000, '\n'); // remove bad input from buffer
+            cout << endl;
+            cout << "  Error: Please enter a number only!" << endl << endl;
+            continue;  // ask again
+        }
+
+        // Valid integer entered — return it
+        return number;
+    }
+}
+
+int countRows (string filename){ 
+    ifstream file (filename);
+    string line; 
+    int count = 0;
+    while (getline(file, line)) {
+        if (line.empty()) continue; // skip empty lines
+        count++;
+    }
+    file.close();
+    return count;
+}
 
 int main(int argc, char* argv[]) {
 
     string datasetName;
     string inputFile;
+    int startRow;
+    int endRow;
+
+
 
     //ask user for input: dataset filename, start row, end row  
     while (true) {
@@ -131,8 +167,7 @@ int main(int argc, char* argv[]) {
         if (!checkFile) {
             cout << endl;
             cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
-            cout << "  Please check the filename and try again." << endl;
-            cout << endl;
+            cout << "  Please check the filename and try again." << endl << endl;
             continue;  // ask again
         }
         checkFile.close();
@@ -141,29 +176,27 @@ int main(int argc, char* argv[]) {
         break;
     }
 
-
-    int startRow;
-    int endRow;
-
+    // get the max rows of each dataset
+    int totalRows = countRows(inputFile);
+   
     while (true) {
-        cout << endl;
-        cout << "Enter start row number (example: 1): ";
-        cin >> startRow;
-        cout << "Enter end row number   (example: 1000): ";
-        cin >> endRow;
+
+        // only allow user enter integer by function getIntInput 
+        startRow = getIntInput("Enter start row number (example: 1): ");
+        endRow   = getIntInput("Enter end row number   (example: 1000): ");
 
         // error checking 
-        if (startRow < 1) {
+        if (startRow < 1 || startRow > totalRows) {
             cout << endl;
-            cout << "  Error: Start row must be 1 or higher!" << endl;
+            cout << "  Error: Start row must be between 1 and " << totalRows << endl << endl;
             continue;  
         }
-        if (endRow < startRow) {
+        if (endRow < startRow || endRow > totalRows) {
             cout << endl;
-            cout << "  Error: End row must be >= start row!" << endl;
-            cout << "  You entered start = "  << startRow << " end = " << endRow << endl;
+            cout << "  Error: End row must be between " << startRow << " and " << totalRows << endl << endl;
             continue;  
         }
+
 
         // Valid range — exit loop
         break;
@@ -182,9 +215,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    int start_baseName = inputFile.find("CSV_dataset\\") + 12; // position after "CSV_dataset\"
+    int end_baseName = inputFile.find(".csv"); // position of ".csv"
 
-    string baseName   = inputFile.substr(0, inputFile.find(".csv")); // abtract the filename without .csv
-    string outputFile = baseName + "_radix_sorted_step_"
+    string baseName   = inputFile.substr(start_baseName, end_baseName - start_baseName); // extract the filename without .csv
+    string outputFile = "CSV_output\\" + baseName + "_radix_sorted_step_"
                       + to_string(startRow) + "_"
                       + to_string(endRow) + ".txt";
 
