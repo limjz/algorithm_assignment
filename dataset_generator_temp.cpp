@@ -46,8 +46,9 @@ int main() {
     cout << "Enter number of records to generate: ";
     cin >> n;
 
+    string outputFolder = "CSV_dataset\\";
    
-    string filename = "dataset_" + to_string(n) + ".csv";
+    string filename = outputFolder + "dataset_" + to_string(n) + ".csv";
     ofstream outFile(filename);
 
     if (!outFile) {

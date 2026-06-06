@@ -73,11 +73,7 @@ void sortByDigit(vector<Record>& arr, int position) {
     }
 }
 
-// ----------------------------------------------------------
-// Full Radix Sort
-// Process digit by digit, starting from rightmost (position 10)
-// going all the way to leftmost (position 1)
-// ----------------------------------------------------------
+// loop from ones to billions to sort it 
 void radixSort(vector<Record>& arr) {
     // d = digit position, from 10 (ones) down to 1 (billions)
     for (int d = 10; d >= 1; d--) {
@@ -85,9 +81,7 @@ void radixSort(vector<Record>& arr) {
     }
 }
 
-// ----------------------------------------------------------
-// Read CSV file and store all records into a vector
-// ----------------------------------------------------------
+// read all and place into vector<Record>data
 vector<Record> readCSV(string filename) {
     vector<Record> data;
     ifstream file(filename);
@@ -114,9 +108,7 @@ vector<Record> readCSV(string filename) {
     return data;
 }
 
-// ----------------------------------------------------------
-// Write all sorted records into a new CSV file
-// ----------------------------------------------------------
+// write to CSV file
 void writeCSV(vector<Record> arr, string filename) {
     ofstream file(filename);
     for (int i = 0; i < arr.size(); i++) {
@@ -125,45 +117,76 @@ void writeCSV(vector<Record> arr, string filename) {
     file.close();
 }
 
-// ----------------------------------------------------------
-// MAIN
-// ----------------------------------------------------------
+
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        cout << "Usage  : ./radix_sort <dataset_filename.csv>" << endl;
-        cout << "Example: ./radix_sort dataset_1000.csv" << endl;
-        return 1;
-    }
+    
+    string datasetFilename;
+    string inputFile;  
+    vector<Record> data;
 
-    string inputFile = argv[1];
+    // ask for user input for dataset filename
+    while (true) {
+        cout << "Enter dataset filename" << endl;
+        cout << "(example: dataset_1000): ";
+        cin >> datasetFilename;
 
-    // Read all records from CSV into memory
-    vector<Record> data = readCSV(inputFile);
 
-    if (data.empty()) {
-        cout << "Error: No data loaded from " << inputFile << endl;
-        return 1;
+        inputFile = "CSV_dataset\\" + datasetFilename + ".csv"; // construct full path to input file
+
+        // error checking, if file not found, show error and ask again
+        ifstream checkFile(inputFile);
+        
+        if (!checkFile) { // File not found   
+            cout << endl;
+            cout << "  Error: \"" << datasetFilename << "\" not found in CSV_dataset folder!" << endl;
+            cout << "  Please check the filename and try again." << endl << endl;
+            continue;  // re-loop and ask again
+        }
+        checkFile.close();
+
+        // File exists — load it in to the Vector<Record> 
+        cout << endl;
+        cout << "Loading " << inputFile << " ..." << endl;
+
+        data = readCSV(inputFile);
+
+        if (data.empty()) {
+            cout << "  Error: File is empty or cannot be read." << endl;
+            cout << "  Please try a different file." << endl;
+            cout << endl;
+            continue;  // re-loop first question 
+        }
+
+        // found, exit loop
+        break;
     }
 
     cout << "Loaded " << data.size() << " records from " << inputFile << endl;
 
-    // -------------------------------------------------------
-    // START TIMER — only time the sort, NOT file reading/writing
-    // -------------------------------------------------------
+
     auto start = chrono::high_resolution_clock::now();
 
     radixSort(data);
 
     auto end = chrono::high_resolution_clock::now();
-    // -------------------------------------------------------
-    // END TIMER
-    // -------------------------------------------------------
+
 
     chrono::duration<double> elapsed = end - start;
     cout << "Running time: " << elapsed.count() << " seconds" << endl;
 
-    // Save sorted output to new file
-    string outputFile = "radix_sorted_" + inputFile;
+    // Save sorted output to new file in folder CSV_output
+    string outputFolder = "CSV_output\\";
+    int lastSlash = inputFile.find_last_of("/\\");  /**handles both /and\**/
+
+    string justFilename;
+    if (lastSlash == string::npos) {
+        justFilename = inputFile;           // no folder in path
+    } else {
+        justFilename = inputFile.substr(lastSlash + 1);  // strip folder prefix
+    }
+
+
+    string outputFile = outputFolder + "radix_sorted_" + justFilename;
     writeCSV(data, outputFile);
     cout << "Sorted output saved as: " << outputFile << endl;
 

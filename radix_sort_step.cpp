@@ -114,18 +114,65 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
 
 int main(int argc, char* argv[]) {
 
-    // argv[1] = dataset filename
-    // argv[2] = start row number
-    // argv[3] = end row number
-    if (argc < 4) {
-        cout << "Usage  : ./radix_sort_step <dataset.csv> <startRow> <endRow>" << endl;
-        cout << "Example: ./radix_sort_step dataset_1000.csv 1 7" << endl;
-        return 1;
+    string datasetName;
+    string inputFile;
+
+    //ask user for input: dataset filename, start row, end row  
+    while (true) {
+        cout << "Enter dataset filename" << endl;
+        cout << "(example: dataset_1000): ";
+        cin >> datasetName;
+
+        // Build full input path
+        inputFile = "CSV_dataset\\" + datasetName + ".csv"; // construct full path to input file
+
+        // Check if file exists
+        ifstream checkFile(inputFile);
+        if (!checkFile) {
+            cout << endl;
+            cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
+            cout << "  Please check the filename and try again." << endl;
+            cout << endl;
+            continue;  // ask again
+        }
+        checkFile.close();
+
+        // File found — exit loop
+        break;
     }
 
-    string inputFile = argv[1];
-    int startRow     = stoi(argv[2]);   // stoi = String to Int
-    int endRow       = stoi(argv[3]);
+
+    int startRow;
+    int endRow;
+
+    while (true) {
+        cout << endl;
+        cout << "Enter start row number (example: 1): ";
+        cin >> startRow;
+        cout << "Enter end row number   (example: 1000): ";
+        cin >> endRow;
+
+        // error checking 
+        if (startRow < 1) {
+            cout << endl;
+            cout << "  Error: Start row must be 1 or higher!" << endl;
+            continue;  
+        }
+        if (endRow < startRow) {
+            cout << endl;
+            cout << "  Error: End row must be >= start row!" << endl;
+            cout << "  You entered start = "  << startRow << " end = " << endRow << endl;
+            continue;  
+        }
+
+        // Valid range — exit loop
+        break;
+    }
+
+    cout << endl;
+    cout << "Loading rows " << startRow << " to " << endRow;
+    cout << " from " << inputFile << " ..." << endl;
+
 
     // Load only the rows we need from the CSV
     vector<Record> data = readCSV(inputFile, startRow, endRow);
