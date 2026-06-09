@@ -136,22 +136,25 @@ int main(int argc, char* argv[]) {
     string inputFile;  
     vector<Record> data;
 
+    // ask for user input for dataset filename
     while (true) {
         cout << "Enter dataset filename" << endl;
         cout << "(example: dataset_1000): ";
         cin >> datasetFilename;
 
-        inputFile = "CSV_dataset\\" + datasetFilename + ".csv"; 
+        inputFile = "CSV_dataset\\" + datasetFilename + ".csv"; // construct full path to input file
 
+        // error checking, if file not found, show error and ask again
         ifstream checkFile(inputFile);
-        if (!checkFile) { 
+        if (!checkFile) { //file not found
             cout << endl;
             cout << "  Error: \"" << datasetFilename << "\" not found in CSV_dataset folder!" << endl;
             cout << "  Please check the filename and try again." << endl << endl;
-            continue;  
+            continue;  // re-loop and ask again
         }
         checkFile.close();
 
+        // File exists — load it in to the Vector<Record> 
         cout << endl;
         cout << "Loading " << inputFile << " ..." << endl;
 
@@ -161,8 +164,9 @@ int main(int argc, char* argv[]) {
             cout << "  Error: File is empty or cannot be read." << endl;
             cout << "  Please try a different file." << endl;
             cout << endl;
-            continue;  
+            continue;  //re-loop first question
         }
+        // found, exit loop
         break;
     }
 
@@ -179,14 +183,15 @@ int main(int argc, char* argv[]) {
     chrono::duration<double> elapsed = end - start;
     cout << "Running time: " << elapsed.count() << " seconds" << endl;
 
+    // Save sorted output to new file in folder CSV_output
     string outputFolder = "CSV_output\\";
-    int lastSlash = inputFile.find_last_of("/\\"); 
+    int lastSlash = inputFile.find_last_of("/\\"); /**handles both /and\**/
 
     string justFilename;
     if (lastSlash == string::npos) {
-        justFilename = inputFile;           
+        justFilename = inputFile;           // no folder in path
     } else {
-        justFilename = inputFile.substr(lastSlash + 1);  
+        justFilename = inputFile.substr(lastSlash + 1);  // strip folder prefix
     }
 
     string outputFile = outputFolder + "heap_sorted_" + justFilename;
@@ -197,7 +202,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    writeTime(outputFile, elapsed.count(), data.size()); 
+    writeTime(outputFile, elapsed.count(), data.size());  //output the running time at bottom of csv file
 
     cout << "Sorted output saved as: " << outputFile << endl;
 
