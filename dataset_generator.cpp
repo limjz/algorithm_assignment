@@ -25,25 +25,27 @@
 #include <stdexcept>
 #include <string>
 
+using namespace std;
+
 namespace {
 
 // Integer range required by assignment:
 // 1,000,000,000 to 9,999,999,999.
-constexpr std::uint64_t MIN_INTEGER = 1'000'000'000ULL;
-constexpr std::uint64_t MAX_INTEGER = 9'999'999'999ULL;
-constexpr std::uint64_t INTEGER_RANGE =
+constexpr uint64_t MIN_INTEGER = 1'000'000'000ULL;
+constexpr uint64_t MAX_INTEGER = 9'999'999'999ULL;
+constexpr uint64_t INTEGER_RANGE =
     MAX_INTEGER - MIN_INTEGER + 1ULL;
 
 // Full-cycle pseudo-random sequence constants.
 // No integer repeats before all 9 billion values are used.
-constexpr std::uint64_t LCG_MULTIPLIER = 1'664'521ULL;
-constexpr std::uint64_t LCG_INCREMENT = 1'013'904'223ULL;
+constexpr uint64_t LCG_MULTIPLIER = 1'664'521ULL;
+constexpr uint64_t LCG_INCREMENT = 1'013'904'223ULL;
 
 // Generate one random five-letter lowercase string.
-std::string generateFiveLetterString(std::mt19937_64& rng) {
-    std::uniform_int_distribution<int> letterDistribution(0, 25);
+string generateFiveLetterString(mt19937_64& rng) {
+    uniform_int_distribution<int> letterDistribution(0, 25);
 
-    std::string text(5, 'a');
+    string text(5, 'a');
 
     for (char& character : text) {
         character =
@@ -54,22 +56,22 @@ std::string generateFiveLetterString(std::mt19937_64& rng) {
 }
 
 // Read and validate dataset size from command line.
-std::uint64_t readDatasetSize(const char* argument) {
-    std::size_t processedCharacters = 0;
+uint64_t readDatasetSize(const char* argument) {
+    size_t processedCharacters = 0;
 
-    const std::string input(argument);
+    const string input(argument);
 
-    const std::uint64_t datasetSize =
-        std::stoull(input, &processedCharacters);
+    const uint64_t datasetSize =
+        stoull(input, &processedCharacters);
 
     if (processedCharacters != input.size()) {
-        throw std::invalid_argument(
+        throw invalid_argument(
             "Dataset size must contain digits only."
         );
     }
 
     if (datasetSize == 0 || datasetSize > INTEGER_RANGE) {
-        throw std::out_of_range(
+        throw out_of_range(
             "Dataset size must be between 1 and 9000000000."
         );
     }
@@ -82,14 +84,15 @@ std::uint64_t readDatasetSize(const char* argument) {
 int main(int argc, char* argv[]) {
     // Student ID: 242UC244PS
     // Converted seed: 2421324469
-    std::mt19937_64 rng(2421324469ULL);
+    // This line initializes a 64-bit pseudo-random number generator using the group leader student ID as the seed.
+    mt19937_64 rng(2421324469ULL);
 
     if (argc != 2) {
-        std::cerr << "Usage: "
+        cerr << "Usage: "
                   << argv[0]
                   << " <dataset_size>\n";
 
-        std::cerr << "Example: "
+        cerr << "Example: "
                   << argv[0]
                   << " 1000\n";
 
@@ -97,21 +100,21 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-        const std::uint64_t datasetSize =
+        const uint64_t datasetSize =
             readDatasetSize(argv[1]);
 
         // Create folder if it does not exist.
-        std::filesystem::create_directories("CSV_dataset");
+        filesystem::create_directories("CSV_dataset");
 
-        const std::string outputPath =
+        const string outputPath =
             "CSV_dataset/dataset_" +
-            std::to_string(datasetSize) +
+            to_string(datasetSize) +
             ".csv";
 
-        std::ofstream outputFile(outputPath);
+        ofstream outputFile(outputPath);
 
         if (!outputFile) {
-            std::cerr
+            cerr
                 << "Error: Unable to create "
                 << outputPath
                 << '\n';
@@ -120,17 +123,17 @@ int main(int argc, char* argv[]) {
         }
 
         const auto startTime =
-            std::chrono::steady_clock::now();
+            chrono::steady_clock::now();
 
         // First value is derived from seeded generator.
-        std::uint64_t currentState =
+        uint64_t currentState =
             rng() % INTEGER_RANGE;
 
-        for (std::uint64_t row = 0;
+        for (uint64_t row = 0;
              row < datasetSize;
              ++row) {
 
-            const std::uint64_t uniqueInteger =
+            const uint64_t uniqueInteger =
                 MIN_INTEGER + currentState;
 
             outputFile
@@ -150,7 +153,7 @@ int main(int argc, char* argv[]) {
         outputFile.flush();
 
         if (!outputFile) {
-            throw std::runtime_error(
+            throw runtime_error(
                 "Writing failed. Check available disk space."
             );
         }
@@ -158,26 +161,26 @@ int main(int argc, char* argv[]) {
         outputFile.close();
 
         const auto endTime =
-            std::chrono::steady_clock::now();
+            chrono::steady_clock::now();
 
-        const std::chrono::duration<double> elapsedTime =
+        const chrono::duration<double> elapsedTime =
             endTime - startTime;
 
-        std::cout << "Dataset generated successfully.\n";
-        std::cout << "Rows generated: "
+        cout << "Dataset generated successfully.\n";
+        cout << "Rows generated: "
                   << datasetSize
                   << '\n';
 
-        std::cout << "Output file: "
+        cout << "Output file: "
                   << outputPath
                   << '\n';
 
-        std::cout << "Generation time: "
+        cout << "Generation time: "
                   << elapsedTime.count()
                   << " seconds\n";
     }
-    catch (const std::exception& error) {
-        std::cerr
+    catch (const exception& error) {
+        cerr
             << "Error: "
             << error.what()
             << '\n';
