@@ -9,6 +9,12 @@
 // Member_3: ID | NAME | EMAIL | PHONE
 // Member_4: ID | NAME | EMAIL | PHONE
 // *********************************************************
+// Task Distribution
+// Member_1: Radix Sort (radix_sort.cpp, radix_sort_step.cpp)
+// Member_2:
+// Member_3:
+// Member_4:
+// *********************************************************
 
 #include <iostream>
 #include <fstream>
@@ -145,7 +151,7 @@ void writeTime (string filename, double elapsedTime, int inputSize) {
 
 
 
-int main(int argc, char* argv[]) {
+int main() {
     
     /* ========= CHANGE INPUT VALUES HERE ============= */
     string datasetName = "dataset_10000000.csv";
