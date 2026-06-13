@@ -1,11 +1,7 @@
 // *********************************************************
 // Program: hash_table_search.cpp
 // Course: CCP6214 Algorithm Design and Analysis
-// Lecture Class: TC4L
-// Tutorial Class: T13L
-// Trimester: 2610
-// Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
-// Member_2: 243UC247DT | THASSVEEN   |                                  | 
+// Class: TC4L | T13L
 // *********************************************************
 
 #include <iostream>
@@ -13,141 +9,98 @@
 #include <vector>
 #include <string>
 #include <chrono>
+#include <algorithm>
 
 using namespace std;
 
-// Aligned with group Record struct
 struct Record {
     long long number;
     string word;
 };
 
-// Global Hash Table parameters
 const int TABLE_SIZE = 10007;
-
-// Using a 2D Vector (Vector of Vectors) to represent Hash Table with Simple Chaining
-// This acts exactly like the "3D" array logic style for bucket tracking without pointer mess
 vector<vector<Record>> hashTable(TABLE_SIZE);
+vector<long long> allKeys; // To store keys for running N searches
 
-// Basic Hash Function
 int hashFunction(long long key) {
     return key % TABLE_SIZE;
 }
 
-// Read CSV and insert into Hash Table
 bool loadDataset(string filename) {
     ifstream file(filename);
-    if (!file) {
-        return false;
-    }
+    if (!file) return false;
 
     string line;
     while (getline(file, line)) {
         if (line.empty()) continue;
 
         int commaPos = line.find(',');
+        if (commaPos == string::npos) continue;
+
         Record r;
         r.number = stoll(line.substr(0, commaPos));
         r.word = line.substr(commaPos + 1);
 
-        // Simple chaining: append directly to the vector bucket index
         int index = hashFunction(r.number);
         hashTable[index].push_back(r);
+        allKeys.push_back(r.number); // Save key for batch testing
     }
     file.close();
     return true;
 }
 
-// Search function that tracks metrics and logs steps
-bool searchHashTable(long long targetKey, Record& result, int& steps, double& elapsedTime) {
+// Search function returning execution time in seconds
+double searchTimeOnly(long long targetKey) {
     int index = hashFunction(targetKey);
-    steps = 0;
-
+    
     auto start = chrono::high_resolution_clock::now();
-
-    // Traverse the simple linked list/vector chain sequentially
-    for (int i = 0; i < hashTable[index].size(); i++) {
-        steps++;
+    for (size_t i = 0; i < hashTable[index].size(); i++) {
         if (hashTable[index][i].number == targetKey) {
-            result = hashTable[index][i];
             auto end = chrono::high_resolution_clock::now();
-            chrono::duration<double, milli> duration = end - start;
-            elapsedTime = duration.count(); // Time in milliseconds
-            return true;
+            return chrono::duration<double>(end - start).count();
         }
     }
-
     auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double, milli> duration = end - start;
-    elapsedTime = duration.count();
-    return false;
+    return chrono::duration<double>(end - start).count();
 }
 
 int main() {
-    string datasetFilename;
-    cout << "Enter dataset filename (example: dataset_1000): ";
-    cin >> datasetFilename;
+    // Hardcoded dataset target matching Jun Zhao's structure reference
+    string datasetBase = "dataset_1000"; 
+    string inputFile = "CSV_dataset/" + datasetBase + ".csv";
 
-    // Cross-OS Path handling matching radix_sort.cpp
-    string inputFile = "CSV_dataset\\" + datasetFilename + ".csv";
-    ifstream checkFile(inputFile);
-    if (!checkFile) {
-        inputFile = "CSV_dataset/" + datasetFilename + ".csv"; // Mac Fallback
-    }
-    else {
-        checkFile.close();
-    }
-
-    cout << "Loading " << inputFile << " ..." << endl;
     if (!loadDataset(inputFile)) {
-        cout << "Error: Cannot open or read file " << inputFile << endl;
-        return 1;
-    }
-    cout << "Dataset loaded successfully into Hash Table." << endl << endl;
-
-    // Perform Search Operations to capture Best, Avg, Worst cases
-    long long targetKey;
-    cout << "Enter key to search: ";
-    cin >> targetKey;
-
-    Record result;
-    int steps = 0;
-    double elapsedTime = 0.0;
-
-    bool found = searchHashTable(targetKey, result, steps, elapsedTime);
-
-    if (found) {
-        cout << "Key Found: " << result.word << endl;
-        cout << "Steps taken: " << steps << endl;
-        cout << "Execution Time: " << elapsedTime << " ms" << endl;
-    } else {
-        cout << "Key not found in dataset." << endl;
-        cout << "Steps taken: " << steps << endl;
+        inputFile = "CSV_dataset\\" + datasetBase + ".csv";
+        if (!loadDataset(inputFile)) {
+            cout << "Error: Cannot open " << datasetBase << ".csv" << endl;
+            return 1;
+        }
     }
 
-    // Creating the Output metrics log file matching project standards
-    string outputFolder = "CSV_output\\";
-    string outputFile = outputFolder + "hash_search_analytics_" + datasetFilename + ".txt";
-    ofstream logFile(outputFile);
-    
-    if (!logFile) {
-        // Fallback for Mac paths
-        outputFile = "CSV_output/hash_search_analytics_" + datasetFilename + ".txt";
-        logFile.open(outputFile);
+    double totalExecutionTime = 0.0;
+    double bestCase = 999999.0;
+    double worstCase = -1.0;
+    int n = allKeys.size();
+
+    // Perform N searches over the entire dataset keyspace
+    for (int i = 0; i < n; i++) {
+        double t = searchTimeOnly(allKeys[i]);
+        totalExecutionTime += t;
+        if (t < bestCase) bestCase = t;
+        if (t > worstCase) worstCase = t;
     }
 
-    if (logFile) {
-        logFile << "=========================================\n";
-        logFile << "HASH TABLE SEARCH PERFORMANCE METRICS\n";
-        logFile << "=========================================\n";
-        logFile << "Dataset Evaluated: " << datasetFilename << "\n";
-        logFile << "Target Key Searched: " << targetKey << "\n";
-        logFile << "Search Result: " << (found ? "FOUND" : "NOT FOUND") << "\n";
-        logFile << "Total Chain Comparisons (Steps): " << steps << "\n";
-        logFile << "Measured Execution Time: " << elapsedTime << " ms\n";
-        logFile << "=========================================\n";
-        logFile.close();
-        cout << "\nAnalytics metrics saved to: " << outputFile << endl;
+    double averageCase = totalExecutionTime / n;
+
+    // Required Filename Output: hash_table_search_dataset_1000.txt
+    string outputFilename = "hash_table_search_" + datasetBase + ".txt";
+    ofstream outFile(outputFilename);
+    if (outFile.is_open()) {
+        outFile << "Best case time: " << bestCase << " seconds\n";
+        outFile << "Average case time: " << averageCase << " seconds\n";
+        outFile << "Worst case time: " << worstCase << " seconds\n";
+        outFile.close();
+        cout << "Metrics successfully written to " << outputFilename << endl;
     }
 
     return 0;

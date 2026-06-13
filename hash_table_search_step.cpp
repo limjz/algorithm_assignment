@@ -1,6 +1,7 @@
 // *********************************************************
 // Program: hash_table_search_step.cpp
 // Course: CCP6214 Algorithm Design and Analysis
+// Class: TC4L | T13L
 // *********************************************************
 
 #include <iostream>
@@ -23,14 +24,13 @@ int hashFunction(long long key) {
 }
 
 int main() {
-    string datasetFilename;
-    cout << "Enter dataset filename for Step-by-Step Logging: ";
-    cin >> datasetFilename;
+    string datasetBase = "dataset_1000";
+    long long targetKey = 2008864030; // Hardcoded exact target required by rubrics/Jun Zhao
 
-    string inputFile = "CSV_dataset/" + datasetFilename + ".csv";
+    string inputFile = "CSV_dataset/" + datasetBase + ".csv";
     ifstream file(inputFile);
     if (!file) {
-        inputFile = "CSV_dataset\\" + datasetFilename + ".csv";
+        inputFile = "CSV_dataset\\" + datasetBase + ".csv";
         file.open(inputFile);
     }
 
@@ -50,41 +50,34 @@ int main() {
     }
     file.close();
 
-    long long targetKey;
-    cout << "Enter target key to trace: ";
-    cin >> targetKey;
+    // Required filename: dataset_1000_hash_table_search_step_2008864030.txt
+    string outputFilename = datasetBase + "_hash_table_search_step_" + to_string(targetKey) + ".txt";
+    ofstream outFile(outputFilename);
+
+    if (!outFile.is_open()) {
+        cout << "Error creating output file." << endl;
+        return 1;
+    }
 
     int index = hashFunction(targetKey);
-    
-    string outputFile = "CSV_output/hash_search_step_" + datasetFilename + ".txt";
-    ofstream log(outputFile);
-    if (!log) {
-        outputFile = "CSV_output\\hash_search_step_" + datasetFilename + ".txt";
-        log.open(outputFile);
-    }
-
-    log << "Tracing Search Path for Key: " << targetKey << "\n";
-    log << "Hashed Target Bucket Index: " << index << "\n";
-    log << "--------------------------------------------------\n";
-
     bool found = false;
-    for (int i = 0; i < hashTable[index].size(); i++) {
-        log << "Step " << (i + 1) << " -> Checking Index Slot [" << i << "] | Key: " << hashTable[index][i].number;
+
+    for (size_t i = 0; i < hashTable[index].size(); i++) {
         if (hashTable[index][i].number == targetKey) {
-            log << " [MATCH FOUND!]\n";
-            log << "Result Payload: " << hashTable[index][i].word << "\n";
+            outFile << hashTable[index][i].number << " = " << hashTable[index][i].number << "/" << hashTable[index][i].word << "\n";
             found = true;
             break;
+        } else {
+            outFile << "-1 != " << targetKey << "\n";
         }
-        log << " [NO MATCH]\n";
     }
 
-    if (!found) {
-        log << "--------------------------------------------------\n";
-        log << "Search Complete. Target Key does not exist in chain.\n";
+    if (!found && hashTable[index].empty()) {
+        outFile << "-1 != " << targetKey << "\n";
     }
 
-    log.close();
-    cout << "Step-by-step verification trace successfully logged in CSV_output!" << endl;
+    outFile.close();
+    cout << "Step logs successfully written to " << outputFilename << endl;
+
     return 0;
 }
