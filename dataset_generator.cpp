@@ -1,10 +1,10 @@
 // *********************************************************
 // Program: dataset_generator.cpp
 // Course: CCP6214 Algorithm Design and Analysis
-// Lecture Class: YOUR_LECTURE_CLASS
-// Tutorial Class: YOUR_TUTORIAL_CLASS
+// Lecture Class: TC4L
+// Tutorial Class: T13L
 // Trimester: 2610
-// Member_1: 242UC244PS | YOUR_NAME | YOUR_EMAIL | YOUR_PHONE
+// Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
 // Member_2: ID | NAME | EMAIL | PHONE
 // Member_3: ID | NAME | EMAIL | PHONE
 // Member_4: ID | NAME | EMAIL | PHONE
@@ -16,177 +16,128 @@
 // Member_4:
 // *********************************************************
 
-#include <chrono>
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <random>
-#include <stdexcept>
+#include <fstream>
+#include <cstdlib>
 #include <string>
-
+#include <chrono>
 using namespace std;
 
-namespace {
 
-// Integer range required by assignment:
-// 1,000,000,000 to 9,999,999,999.
-constexpr uint64_t MIN_INTEGER = 1'000'000'000ULL;
-constexpr uint64_t MAX_INTEGER = 9'999'999'999ULL;
-constexpr uint64_t INTEGER_RANGE =
-    MAX_INTEGER - MIN_INTEGER + 1ULL;
-
-// Full-cycle pseudo-random sequence constants.
-// No integer repeats before all 9 billion values are used.
-constexpr uint64_t LCG_MULTIPLIER = 1'664'521ULL;
-constexpr uint64_t LCG_INCREMENT = 1'013'904'223ULL;
-
-// Generate one random five-letter lowercase string.
-string generateFiveLetterString(mt19937_64& rng) {
-    uniform_int_distribution<int> letterDistribution(0, 25);
-
-    string text(5, 'a');
-
-    for (char& character : text) {
-        character =
-            static_cast<char>('a' + letterDistribution(rng));
-    }
-
-    return text;
+// Generate a bigger random value using two rand() calls.
+long long bigRand() {
+    long long value = (long long)rand() * (RAND_MAX + 1LL) + rand();
+    return value;
 }
 
-// Read and validate dataset size from command line.
-uint64_t readDatasetSize(const char* argument) {
-    size_t processedCharacters = 0;
 
-    const string input(argument);
+// Generate a 5-letter lowercase string from the integer.
+// Example output: "uoren", "igerk"
+string makeWord(long long num) {
+    string word = "aaaaa";
 
-    const uint64_t datasetSize =
-        stoull(input, &processedCharacters);
-
-    if (processedCharacters != input.size()) {
-        throw invalid_argument(
-            "Dataset size must contain digits only."
-        );
+    for (int i = 0; i < 5; i++) {
+        word[i] = 'a' + (num % 26);
+        num = num / 26;
     }
 
-    if (datasetSize == 0 || datasetSize > INTEGER_RANGE) {
-        throw out_of_range(
-            "Dataset size must be between 1 and 9000000000."
-        );
-    }
-
-    return datasetSize;
+    return word;
 }
 
-} // namespace
 
-int main(int argc, char* argv[]) {
-    // Student ID: 242UC244PS
-    // Converted seed: 2421324469
-    // This line initializes a 64-bit pseudo-random number generator using the group leader student ID as the seed.
-    mt19937_64 rng(2421324469ULL);
+int main() {
+    // Seed: group leader student ID 242UC244PS -> 2421324469
+    srand(2421324469U);
 
-    if (argc != 2) {
-        cerr << "Usage: "
-                  << argv[0]
-                  << " <dataset_size>\n";
+    long long n;
+    n = 100000000;   // Change this line for each run
 
-        cerr << "Example: "
-                  << argv[0]
-                  << " 1000\n";
-
+    if (n <= 0 || n > 9000000000LL) {
+        cout << "Error: Dataset size must be from 1 to 9000000000." << endl;
         return 1;
     }
 
-    try {
-        const uint64_t datasetSize =
-            readDatasetSize(argv[1]);
+    string filename = "CSV_dataset\\dataset_" + to_string(n) + ".csv";
+    ofstream outFile(filename);
 
-        // Create folder if it does not exist.
-        filesystem::create_directories("CSV_dataset");
-
-        const string outputPath =
-            "CSV_dataset/dataset_" +
-            to_string(datasetSize) +
-            ".csv";
-
-        ofstream outputFile(outputPath);
-
-        if (!outputFile) {
-            cerr
-                << "Error: Unable to create "
-                << outputPath
-                << '\n';
-
-            return 1;
-        }
-
-        const auto startTime =
-            chrono::steady_clock::now();
-
-        // First value is derived from seeded generator.
-        uint64_t currentState =
-            rng() % INTEGER_RANGE;
-
-        for (uint64_t row = 0;
-             row < datasetSize;
-             ++row) {
-
-            const uint64_t uniqueInteger =
-                MIN_INTEGER + currentState;
-
-            outputFile
-                << uniqueInteger
-                << ','
-                << generateFiveLetterString(rng)
-                << '\n';
-
-            // Generate next unique pseudo-random integer.
-            currentState =
-                (
-                    LCG_MULTIPLIER * currentState +
-                    LCG_INCREMENT
-                ) % INTEGER_RANGE;
-        }
-
-        outputFile.flush();
-
-        if (!outputFile) {
-            throw runtime_error(
-                "Writing failed. Check available disk space."
-            );
-        }
-
-        outputFile.close();
-
-        const auto endTime =
-            chrono::steady_clock::now();
-
-        const chrono::duration<double> elapsedTime =
-            endTime - startTime;
-
-        cout << "Dataset generated successfully.\n";
-        cout << "Rows generated: "
-                  << datasetSize
-                  << '\n';
-
-        cout << "Output file: "
-                  << outputPath
-                  << '\n';
-
-        cout << "Generation time: "
-                  << elapsedTime.count()
-                  << " seconds\n";
-    }
-    catch (const exception& error) {
-        cerr
-            << "Error: "
-            << error.what()
-            << '\n';
-
+    if (!outFile) {
+        cout << "Error: Cannot create file " << filename << endl;
+        cout << "Make sure the CSV_dataset folder exists." << endl;
         return 1;
     }
+
+    // Allocate an array for unique integers.
+    long long* numbers = new long long[n];
+
+    // Generate unique 10-digit integers.
+    // No duplicate checking is required because each value is
+    // created only once.
+
+    auto generateStart = chrono::system_clock::now();
+
+    for (long long i = 0; i < n; i++) {
+        numbers[i] = 1000000000LL + i;
+    }
+
+
+    // Randomize the order using manual Fisher-Yates shuffle.
+
+    for (long long i = n - 1; i > 0; i--) {
+        long long randomIndex = bigRand() % (i + 1);
+
+        long long temp = numbers[i];
+        numbers[i] = numbers[randomIndex];
+        numbers[randomIndex] = temp;
+    }
+
+    auto generateEnd = chrono::system_clock::now();
+    chrono::duration<double> generateDuration = generateEnd - generateStart;
+
+  // Save CSV rows in larger blocks.
+    auto saveStart = chrono::system_clock::now();
+
+    string outputBuffer = "";
+    outputBuffer.reserve(1024 * 1024);
+
+    for (long long i = 0; i < n; i++) {
+        outputBuffer += to_string(numbers[i]);
+        outputBuffer += ",";
+        outputBuffer += makeWord(numbers[i]);
+        outputBuffer += "\n";
+
+        if (outputBuffer.size() >= 1024 * 1024) {
+            outFile << outputBuffer;
+            outputBuffer.clear();
+        }
+
+        // Only show progress every 10 million records.
+        // Do not print every record because terminal output is slow.
+        if ((i + 1) % 10000000 == 0) {
+            cout << "Progress: " << (i + 1) << " / " << n << endl;
+        }
+    }
+
+    if (outputBuffer != "") {
+        outFile << outputBuffer;
+    }
+
+    outFile.close();
+
+    auto saveEnd = chrono::system_clock::now();
+    chrono::duration<double> saveDuration = saveEnd - saveStart;
+
+    delete[] numbers;
+
+    cout << "Done!" << endl;
+    cout << "Records generated: " << n << endl;
+    cout << "Output saved as:   " << filename << endl;
+    cout << "Generate and shuffle time: " << generateDuration.count()
+         << " seconds" << endl;
+    cout << "CSV saving time:           " << saveDuration.count()
+         << " seconds" << endl;
+    cout << "Total time:                "
+         << generateDuration.count() + saveDuration.count()
+         << " seconds" << endl;
 
     return 0;
 }
