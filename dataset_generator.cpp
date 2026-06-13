@@ -20,36 +20,31 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
+#include <vector>
 #include <chrono>
 using namespace std;
 
-
-// Generate a bigger random value using two rand() calls.
 long long bigRand() {
     long long value = (long long)rand() * (RAND_MAX + 1LL) + rand();
     return value;
 }
 
-
-// Generate a 5-letter lowercase string from the integer.
-// Example output: "uoren", "igerk"
-string makeWord(long long num) {
+string randomWord() {
     string word = "aaaaa";
 
     for (int i = 0; i < 5; i++) {
-        word[i] = 'a' + (num % 26);
-        num = num / 26;
+        word[i] = 'a' + (rand() % 26);
     }
 
     return word;
 }
 
-
 int main() {
-    // Seed: group leader student ID 242UC244PS -> 2421324469
+    // Seed: group leader ID 242UC244PS -> 2421324469
     srand(2421324469U);
 
     long long n;
+
     n = 100000000;   // Change this line for each run
 
     if (n <= 0 || n > 9000000000LL) {
@@ -66,22 +61,17 @@ int main() {
         return 1;
     }
 
-    // Allocate an array for unique integers.
-    long long* numbers = new long long[n];
-
-    // Generate unique 10-digit integers.
-    // No duplicate checking is required because each value is
-    // created only once.
+    // Vector replaces manual pointer allocation.
+    vector<long long> numbers(n);
 
     auto generateStart = chrono::system_clock::now();
 
+    // Generate unique 10-digit integers.
     for (long long i = 0; i < n; i++) {
         numbers[i] = 1000000000LL + i;
     }
 
-
-    // Randomize the order using manual Fisher-Yates shuffle.
-
+    // Manual Fisher-Yates shuffle.
     for (long long i = n - 1; i > 0; i--) {
         long long randomIndex = bigRand() % (i + 1);
 
@@ -93,16 +83,16 @@ int main() {
     auto generateEnd = chrono::system_clock::now();
     chrono::duration<double> generateDuration = generateEnd - generateStart;
 
-  // Save CSV rows in larger blocks.
     auto saveStart = chrono::system_clock::now();
 
+    // Buffer output to reduce file-writing overhead.
     string outputBuffer = "";
     outputBuffer.reserve(1024 * 1024);
 
     for (long long i = 0; i < n; i++) {
         outputBuffer += to_string(numbers[i]);
         outputBuffer += ",";
-        outputBuffer += makeWord(numbers[i]);
+        outputBuffer += randomWord();
         outputBuffer += "\n";
 
         if (outputBuffer.size() >= 1024 * 1024) {
@@ -110,8 +100,6 @@ int main() {
             outputBuffer.clear();
         }
 
-        // Only show progress every 10 million records.
-        // Do not print every record because terminal output is slow.
         if ((i + 1) % 10000000 == 0) {
             cout << "Progress: " << (i + 1) << " / " << n << endl;
         }
@@ -126,13 +114,11 @@ int main() {
     auto saveEnd = chrono::system_clock::now();
     chrono::duration<double> saveDuration = saveEnd - saveStart;
 
-    delete[] numbers;
-
     cout << "Done!" << endl;
     cout << "Records generated: " << n << endl;
     cout << "Output saved as:   " << filename << endl;
     cout << "Generate and shuffle time: " << generateDuration.count()
-         << " seconds" << endl;
+<< " seconds" << endl;
     cout << "CSV saving time:           " << saveDuration.count()
          << " seconds" << endl;
     cout << "Total time:                "
