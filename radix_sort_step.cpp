@@ -1,10 +1,10 @@
 // *********************************************************
 // Program: radix_sort_step.cpp
 // Course: CCP6214 Algorithm Design and Analysis
-// Lecture Class: TC4L
-// Tutorial Class: T13L
+// Lecture Class: TC3L
+// Tutorial Class: T12L
 // Trimester: 2610
-// Member_1: ID | NAME | EMAIL | PHONE
+// Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
 // Member_2: ID | NAME | EMAIL | PHONE
 // Member_3: ID | NAME | EMAIL | PHONE
 // Member_4: ID | NAME | EMAIL | PHONE
@@ -68,7 +68,6 @@ void sortByDigit(vector<Record>& arr, int position) {
     for (int i = 0; i < n; i++) {
         int digit = getDigit(arr[i].number, position);
         count_bucket[digit].push_back(arr[i]);
-        // push_back = add this record to the END of that bucket's list
     }
 
     // Read all buckets back into arr[] in order from bucket 0 to 9 => sorted first digits
@@ -121,10 +120,10 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
 int main() {
 
     /* ========= CHANGE INPUT VALUES HERE ============= */
-    string datasetName = "dataset_10000000.csv";
+    string datasetName = "dataset_7000000.csv";
     int startRow = 1;
     int endRow = stoi(datasetName.substr(datasetName.find("dataset_") + 8, datasetName.find(".csv") - datasetName.find("dataset_") - 8));
-    //int endRow = 1000;
+    //int endRow = 7;
 
 
     string inputFile = "CSV_dataset\\" + datasetName;

@@ -46,37 +46,27 @@ int getDigit(long long number, int position) {
 void sortByDigit(vector<Record>& arr, int position) {
    
     int n = arr.size();
-    vector<Record> sorted_array(n);    // temp array output[] 
 
-    // count_bucket[] = 10 buckets, each for one digit numbers  
-    int count_bucket[10] = {0}; // default all buckets = 0
+    // count_bucket is an array of 10 vectors
+    vector<Record> count_bucket[10];
 
-    // count how many numbers fall into each bucket
-    // eg:  [0, 0, 0, 2, 0, 1, 0, 2, 2, 1]
-    // means: 2 numbers end with 3, 1 ends with 5, etc.
+    // Place each record element in to correct bucket
+    // based on its digit at the current position
     for (int i = 0; i < n; i++) {
-        int digit = getDigit(arr[i].number, position); // position 10 = ones, position 1 = billions
-       count_bucket[digit]++;
-    }
-
-    // Accumulate the digits in the buckets, so that count_bucket[i] now contains the ENDING index for each bucket
-    for (int i = 1; i < 10; i++) {
-       count_bucket[i] = count_bucket[i] + count_bucket[i - 1];
-    }
-
-    // Place numbers into correct position in sorted_array[]
-    // go BACKWARDS from i = n-1 down to 0 to keep sort STABLE
-    for (int i = n - 1; i >= 0; i--) {
         int digit = getDigit(arr[i].number, position);
-        int pos = count_bucket[digit] - 1;  // find correct index
-        sorted_array[pos] = arr[i];        // place it there
-       count_bucket[digit]--;              // move the pointer left
+        count_bucket[digit].push_back(arr[i]);
     }
 
-    // sub back the sorted output to arr[]
-    for (int i = 0; i < n; i++) {
-        arr[i] = sorted_array[i];
+    // Read all buckets back into arr[] in order from bucket 0 to 9 => sorted first digits
+    int index = 0;
+    for (int i = 0; i < 10; i++) {
+        // go through every record inside this bucket
+        for (int j = 0; j < count_bucket[i].size(); j++) {
+            arr[index] = count_bucket[i][j];
+            index++;
+        }
     }
+    
 }
 
 // loop from ones to billions to sort it 
@@ -154,7 +144,7 @@ void writeTime (string filename, double elapsedTime, int inputSize) {
 int main() {
     
     /* ========= CHANGE INPUT VALUES HERE ============= */
-    string datasetName = "dataset_10000000.csv";
+    string datasetName = "dataset_100000000.csv";
     
 
     string inputFile = "CSV_dataset\\" +  datasetName;  // construct full path to input file
