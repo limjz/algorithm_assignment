@@ -111,100 +111,46 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
     return data;
 }
 
-// only allow user to enter interger in the startRow and endRow input 
-int getIntInput(string message) {
-    int number;
-    while (true) {
-        cout << message;
-        cin >> number;
-
-        if (cin.fail()) {
-            // User typed something that is not a number
-            cin.clear();            // reset cin from fail state
-            cin.ignore(1000, '\n'); // remove bad input from buffer
-            cout << endl;
-            cout << "  Error: Please enter a number only!" << endl << endl;
-            continue;  // ask again
-        }
-
-        // Valid integer entered — return it
-        return number;
-    }
-}
-
-int countRows (string filename){ 
-    ifstream file (filename);
-    string line; 
-    int count = 0;
-    while (getline(file, line)) {
-        if (line.empty()) continue; // skip empty lines
-        count++;
-    }
-    file.close();
-    return count;
-}
 
 int main(int argc, char* argv[]) {
 
-    string datasetName;
-    string inputFile;
-    int startRow;
-    int endRow;
+    /* ========= CHANGE INPUT VALUES HERE ============= */
+    string datasetName = "dataset_10000000.csv";
+    int startRow = 1;
+    int endRow = stoi(datasetName.substr(datasetName.find("dataset_") + 8, datasetName.find(".csv") - datasetName.find("dataset_") - 8));
+    //int endRow = 1000;
 
 
+    string inputFile = "CSV_dataset\\" + datasetName;
 
-    //ask user for input: dataset filename, start row, end row  
-    while (true) {
-        cout << "Enter dataset filename" << endl;
-        cout << "(example: dataset_1000): ";
-        cin >> datasetName;
+    // Check if file exists
+    ifstream checkFile(inputFile);
+    if (!checkFile) {
+        cout << endl;
+        cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
+        cout << "  Please check the filename and try again." << endl << endl;
+        return 1;
+    }
+    checkFile.close();
 
-        // Build full input path
-        inputFile = "CSV_dataset\\" + datasetName + ".csv"; // construct full path to input file
+ 
 
-        // Check if file exists
-        ifstream checkFile(inputFile);
-        if (!checkFile) {
-            cout << endl;
-            cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
-            cout << "  Please check the filename and try again." << endl << endl;
-            continue;  // ask again
-        }
-        checkFile.close();
-
-        // File found — exit loop
-        break;
+    // error checking 
+    if (startRow < 1 ) {
+        cout << endl;
+        cout << "  Error: Start row must be > 1 " << endl << endl;
+        return 1;  
+    }
+    if (endRow < startRow) {
+        cout << endl;
+        cout << "  Error: End row must be >= Start row " << startRow << " !!" << endl << endl;
+        return 1;  
     }
 
-    // get the max rows of each dataset
-    int totalRows = countRows(inputFile);
-   
-    while (true) {
-
-        // only allow user enter integer by function getIntInput 
-        startRow = getIntInput("Enter start row number (example: 1): ");
-        endRow   = getIntInput("Enter end row number   (example: 1000): ");
-
-        // error checking 
-        if (startRow < 1 || startRow > totalRows) {
-            cout << endl;
-            cout << "  Error: Start row must be between 1 and " << totalRows << endl << endl;
-            continue;  
-        }
-        if (endRow < startRow || endRow > totalRows) {
-            cout << endl;
-            cout << "  Error: End row must be between " << startRow << " and " << totalRows << endl << endl;
-            continue;  
-        }
-
-
-        // Valid range — exit loop
-        break;
-    }
 
     cout << endl;
-    cout << "Loading rows " << startRow << " to " << endRow;
-    cout << " from " << inputFile << " ..." << endl;
+    cout << "Loading rows " << startRow << " to " << endRow
+     << " from " << inputFile << " ..." << endl;
 
 
     // Load only the rows we need from the CSV
@@ -226,7 +172,7 @@ int main(int argc, char* argv[]) {
     // Open output txt file for writing
     ofstream outFile(outputFile);
     if (!outFile) {
-        cout << "Error: Cannot create output file." << endl;
+        cout << "Error: Cannot create output file. " << outputFile << endl;
         return 1;
     }
 
