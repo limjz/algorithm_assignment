@@ -11,7 +11,7 @@
 // *********************************************************
 // Task Distribution
 // Member_1: Radix Sort & File Utilities
-// Member_2: Heap Sort Algorithm Implementation & Testing
+// Member_2: Heap Sort Algorithm Implementation 
 // *********************************************************
 
 #include <iostream>
@@ -89,18 +89,18 @@ vector<Record> readCSV(string filename) {
     while (getline(file, line)) {
         if (line.empty()) continue;
 
+        // Find the comma that separates number and word
         int commaPos = line.find(',');
 
         Record r;
-        r.number = stoll(line.substr(0, commaPos));   
-        r.word   = line.substr(commaPos + 1);          
+        r.number = stoll(line.substr(0, commaPos));   // text before comma -> number
+        r.word   = line.substr(commaPos + 1);          // text after comma  -> word
         data.push_back(r);
     }
 
     file.close();
     return data;
 }
-
 // Write to CSV file 
 bool writeCSV(vector<Record> arr, string filename) {
     ofstream file(filename);
@@ -110,7 +110,7 @@ bool writeCSV(vector<Record> arr, string filename) {
         return false;
     }
 
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (int i = 0; i < arr.size(); i++) {
         file << arr[i].number << "," << arr[i].word << "\n";
     }
 
@@ -118,8 +118,8 @@ bool writeCSV(vector<Record> arr, string filename) {
     return true;
 }
 
-void writeTime(string filename, double elapsedTime, int inputSize) {
-    ofstream timeFile(filename, ios::app); 
+void writeTime (string filename, double elapsedTime, int inputSize) {
+    ofstream timeFile (filename, ios::app); // open in append mode
     
     if (!timeFile) {
         cout << "Error: Cannot write running time to file." << endl;
@@ -131,70 +131,50 @@ void writeTime(string filename, double elapsedTime, int inputSize) {
     timeFile.close();
 }
 
-int main(int argc, char* argv[]) {
-    string datasetFilename;
-    string inputFile;  
-    vector<Record> data;
+int main() {
+    /* ========= CHANGE INPUT VALUES HERE ============= */
+    string datasetName = "dataset_50000000.csv";
+    
+    string inputFile = "CSV_dataset\\" + datasetName;  // construct full path to input file
 
-    // ask for user input for dataset filename
-    while (true) {
-        cout << "Enter dataset filename" << endl;
-        cout << "(example: dataset_1000): ";
-        cin >> datasetFilename;
-
-        inputFile = "CSV_dataset\\" + datasetFilename + ".csv"; // construct full path to input file
-
-        // error checking, if file not found, show error and ask again
-        ifstream checkFile(inputFile);
-        if (!checkFile) { //file not found
-            cout << endl;
-            cout << "  Error: \"" << datasetFilename << "\" not found in CSV_dataset folder!" << endl;
-            cout << "  Please check the filename and try again." << endl << endl;
-            continue;  // re-loop and ask again
-        }
-        checkFile.close();
-
-        // File exists — load it in to the Vector<Record> 
+    // error checking, if file not found, show error and exit
+    ifstream checkFile(inputFile);
+    if (!checkFile) { // File not found   
         cout << endl;
-        cout << "Loading " << inputFile << " ..." << endl;
+        cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
+        cout << "  Please check the filename and try again." << endl << endl;
+        return 1;  // exit the program
+    }
+    checkFile.close();
 
-        data = readCSV(inputFile);
+    // File exists — load it into the Vector<Record> 
+    cout << "Loading " << inputFile << " ..." << endl;
+    vector<Record> data = readCSV(inputFile);
 
-        if (data.empty()) {
-            cout << "  Error: File is empty or cannot be read." << endl;
-            cout << "  Please try a different file." << endl;
-            cout << endl;
-            continue;  //re-loop first question
-        }
-        // found, exit loop
-        break;
+    if (data.empty()) {
+        cout << "  Error: File is empty or cannot be read." << endl;
+        cout << "  Please try a different file." << endl;
+        cout << endl;
+        return 1;
     }
 
     cout << "Loaded " << data.size() << " records from " << inputFile << endl;
 
-    // --- TIMING BLOCK ---
+    // Timer Start (Isolates pure algorithm performance)
     auto start = chrono::high_resolution_clock::now();
 
     heapSort(data);
 
+    // Timer End after sorting is done
     auto end = chrono::high_resolution_clock::now();
-    // --------------------
 
     chrono::duration<double> elapsed = end - start;
     cout << "Running time: " << elapsed.count() << " seconds" << endl;
 
-    // Save sorted output to new file in folder CSV_output
-    string outputFolder = "CSV_output\\";
-    int lastSlash = inputFile.find_last_of("/\\"); /**handles both /and\**/
+    // Save sorted output to new file in folder CSV_output (Matches teammate's naming style)
+    string baseName    = datasetName.substr(0, datasetName.find(".csv"));
+    string outputFile  = "CSV_output\\" + baseName + ".heap_sorted_" + datasetName;
 
-    string justFilename;
-    if (lastSlash == string::npos) {
-        justFilename = inputFile;           // no folder in path
-    } else {
-        justFilename = inputFile.substr(lastSlash + 1);  // strip folder prefix
-    }
-
-    string outputFile = outputFolder + "heap_sorted_" + justFilename;
     bool writeSuccess = writeCSV(data, outputFile);
 
     if (!writeSuccess) {
@@ -202,7 +182,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    writeTime(outputFile, elapsed.count(), data.size());  //output the running time at bottom of csv file
+    writeTime(outputFile, elapsed.count(), data.size()); // output the running time at bottom of csv file
 
     cout << "Sorted output saved as: " << outputFile << endl;
 

@@ -33,7 +33,7 @@ void swapRecords(Record& a, Record& b) {
 }
 
 // Reusable function to print array snapshot to screen AND output file simultaneously
-void printStep(const vector<Record>& arr, ofstream& outFile, string label) {
+void printStep(vector<Record> arr, ofstream& outFile, string label) {
     string line = "[";
 
     for (size_t i = 0; i < arr.size(); i++) {
@@ -47,6 +47,7 @@ void printStep(const vector<Record>& arr, ofstream& outFile, string label) {
 
     line += "] " + label;
 
+    // Print to screen AND output file simultaneously
     cout << line << endl;
     outFile << line << "\n";
 }
@@ -79,21 +80,21 @@ void heapSortStep(vector<Record>& arr, ofstream& outFile) {
     for (int i = n / 2 - 1; i >= 0; i--) {
         maxHeapify(arr, n, i);
     }
-    // Print the structure right after initial building completes
+    // Print layout state right after initial binary tree layout is stabilized
     printStep(arr, outFile, "Build-Max-Heap");
 
-    // Extract elements from the heap loop
-    int stepCounter = 1;
+    // Extract elements from the heap sequentially
+    int passCounter = 1;
     for (int i = n - 1; i > 0; i--) {
-        // Move current root (maximum element) to the sorting end boundary
+        // Swap largest value (root index 0) down to the sorted boundary
         swapRecords(arr[0], arr[i]);
 
-        // Fix the heap property on the remaining active elements
+        // Restore Max-Heap structure on the remaining active tree nodes
         maxHeapify(arr, i, 0);
 
-        // Print structural footprint of the entire vector after this extraction pass
-        printStep(arr, outFile, "Pass " + to_string(stepCounter));
-        stepCounter++;
+        // Print structural configuration change for this extraction cycle
+        printStep(arr, outFile, "Pass " + to_string(passCounter));
+        passCounter++;
     }
 }
 
@@ -129,84 +130,48 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
     return data;
 }
 
-// Data protection: Only allow valid integers
-int getIntInput(string message) {
-    int number;
-    while (true) {
-        cout << message;
-        cin >> number;
+int main() {
 
-        if (cin.fail()) {
-            cin.clear();            
-            cin.ignore(1000, '\n'); 
-            cout << endl;
-            cout << "  Error: Please enter a number only!" << endl << endl;
-            continue;  
-        }
-        return number;
+    /* ========= CHANGE INPUT VALUES HERE ============= */
+    string datasetName = "dataset_100000.csv";
+    int startRow = 1;
+    
+    // Automatically parse endRow from the filename to match teammate's pattern
+    // NOTE: Keep an eye on this value! If datasetName is dataset_7000000.csv, 
+    // it will try to load 7,000,000 lines into your step file, printing millions of lines.
+    // For small test runs, you can manually override endRow to 7 or 10 as shown below.
+    int endRow = stoi(datasetName.substr(datasetName.find("dataset_") + 8, datasetName.find(".csv") - datasetName.find("dataset_") - 8));
+    // int endRow = 7; // <- Uncomment this line when doing quick step validation tests!
+
+    string inputFile = "CSV_dataset\\" + datasetName;
+
+    // Check if file exists
+    ifstream checkFile(inputFile);
+    if (!checkFile) {
+        cout << endl;
+        cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
+        cout << "  Please check the filename and try again." << endl << endl;
+        return 1;
     }
-}
+    checkFile.close();
 
-// Dynamic data scanner
-int countRows(string filename) { 
-    ifstream file(filename);
-    string line; 
-    int count = 0;
-    while (getline(file, line)) {
-        if (line.empty()) continue; 
-        count++;
+    // Data validation checks
+    if (startRow < 1) {
+        cout << endl;
+        cout << "  Error: Start row must be > 1 " << endl << endl;
+        return 1;  
     }
-    file.close();
-    return count;
-}
-
-int main(int argc, char* argv[]) {
-    string datasetName;
-    string inputFile;
-    int startRow;
-    int endRow;
-
-    while (true) {
-        cout << "Enter dataset filename" << endl;
-        cout << "(example: dataset_1000): ";
-        cin >> datasetName;
-
-        inputFile = "CSV_dataset\\" + datasetName + ".csv"; 
-
-        ifstream checkFile(inputFile);
-        if (!checkFile) {
-            cout << endl;
-            cout << "  Error: \"" << datasetName << "\" not found in CSV_dataset folder!" << endl;
-            cout << "  Please check the filename and try again." << endl << endl;
-            continue;  
-        }
-        checkFile.close();
-        break;
-    }
-
-    int totalRows = countRows(inputFile);
-   
-    while (true) {
-        startRow = getIntInput("Enter start row number (example: 1): ");
-        endRow   = getIntInput("Enter end row number   (example: 10): "); // Recommended small range for step test
-
-        if (startRow < 1 || startRow > totalRows) {
-            cout << endl;
-            cout << "  Error: Start row must be between 1 and " << totalRows << endl << endl;
-            continue;  
-        }
-        if (endRow < startRow || endRow > totalRows) {
-            cout << endl;
-            cout << "  Error: End row must be between " << startRow << " and " << totalRows << endl << endl;
-            continue;  
-        }
-        break;
+    if (endRow < startRow) {
+        cout << endl;
+        cout << "  Error: End row must be >= Start row " << startRow << " !!" << endl << endl;
+        return 1;  
     }
 
     cout << endl;
-    cout << "Loading rows " << startRow << " to " << endRow;
-    cout << " from " << inputFile << " ..." << endl;
+    cout << "Loading rows " << startRow << " to " << endRow
+         << " from " << inputFile << " ..." << endl;
 
+    // Load sub-range data
     vector<Record> data = readCSV(inputFile, startRow, endRow);
 
     if (data.empty()) {
@@ -223,19 +188,20 @@ int main(int argc, char* argv[]) {
                       + to_string(startRow) + "_"
                       + to_string(endRow) + ".txt";
 
+    // Open output txt file for writing
     ofstream outFile(outputFile);
     if (!outFile) {
-        cout << "Error: Cannot create output file." << endl;
+        cout << "Error: Cannot create output file. " << outputFile << endl;
         return 1;
     }
 
     cout << "=== Heap Sort Step by Step ===" << endl;
     cout << "Rows: " << startRow << " to " << endRow << endl << endl;
 
-    //Print out the baseline sequence layout
+    // 1. Trace base data layout
     printStep(data, outFile, "original");
 
-    //Perform heap sort tracing mutations inside
+    // 2. Perform heap sort and record its internal tree conversions
     heapSortStep(data, outFile);
 
     outFile.close();
