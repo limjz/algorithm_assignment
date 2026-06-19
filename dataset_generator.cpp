@@ -5,7 +5,7 @@
 // Tutorial Class: T13L
 // Trimester: 2610
 // Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
-// Member_2: ID | NAME | EMAIL | PHONE
+// Member_2: 242UC19643 | TOO JUN CHEN | TOO.JUN.CHEN@student.mmu.edu.my | 0123456789
 // Member_3: ID | NAME | EMAIL | PHONE
 // Member_4: ID | NAME | EMAIL | PHONE
 // *********************************************************
