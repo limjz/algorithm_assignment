@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <chrono>
-#include <algorithm>
+#include <iomanip> // for fixed and setprecision()
 
 using namespace std;
 
@@ -18,7 +18,10 @@ struct Record {
     string word;
 };
 
-const int TABLE_SIZE = 10007;
+// number of bucket in hash table
+// const int TABLE_SIZE = 10007;
+const int TABLE_SIZE = 5000011;
+
 vector<vector<Record>> hashTable(TABLE_SIZE);
 vector<long long> allKeys; // To store keys for running N searches
 
@@ -49,7 +52,7 @@ bool loadDataset(string filename) {
     return true;
 }
 
-// Search function returning execution time in seconds
+// performing one search function, returning execution time in seconds
 double searchTimeOnly(long long targetKey) {
     int index = hashFunction(targetKey);
     
@@ -66,7 +69,7 @@ double searchTimeOnly(long long targetKey) {
 
 int main() {
     // Hardcoded dataset target matching Jun Zhao's structure reference
-    string datasetBase = "dataset_1000"; 
+    string datasetBase = "dataset_50000000"; 
     string inputFile = "CSV_dataset/" + datasetBase + ".csv";
 
     if (!loadDataset(inputFile)) {
@@ -78,11 +81,11 @@ int main() {
     }
 
     double totalExecutionTime = 0.0;
-    double bestCase = 999999.0;
-    double worstCase = -1.0;
+    double bestCase = 999999.0; //super high value for comparison
+    double worstCase = -1.0; // -ve for comparison
     int n = allKeys.size();
 
-    // Perform N searches over the entire dataset keyspace
+    // Perform N searches over the entire dataset keyspace to get best, average, worst case times
     for (int i = 0; i < n; i++) {
         double t = searchTimeOnly(allKeys[i]);
         totalExecutionTime += t;
@@ -93,15 +96,21 @@ int main() {
     double averageCase = totalExecutionTime / n;
 
     // Required Filename Output: hash_table_search_dataset_1000.txt
-    string outputFilename = "hash_table_search_" + datasetBase + ".txt";
+    string outputFilename = "CSV_output\\hash_table_search_" + datasetBase + ".txt";
     ofstream outFile(outputFilename);
-    if (outFile.is_open()) {
+    if (outFile.is_open()) { 
+        outFile << fixed << setprecision(9); // Set precision for seconds
         outFile << "Best case time: " << bestCase << " seconds\n";
         outFile << "Average case time: " << averageCase << " seconds\n";
         outFile << "Worst case time: " << worstCase << " seconds\n";
         outFile.close();
         cout << "Metrics successfully written to " << outputFilename << endl;
     }
+
+    cout << "Best case time:    " << bestCase    << " seconds" << endl;
+    cout << "Average case time: " << averageCase << " seconds" << endl;
+    cout << "Worst case time:   " << worstCase   << " seconds" << endl;
+    cout << endl;
 
     return 0;
 }

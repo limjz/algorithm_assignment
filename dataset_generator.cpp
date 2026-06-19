@@ -45,7 +45,7 @@ int main() {
 
     long long n;
 
-    n = 7;   // Change this line for each run
+    n = 50000000;   // Change this line for each run
 
     if (n <= 0 || n > 9000000000LL) {
         cout << "Error: Dataset size must be from 1 to 9000000000." << endl;
