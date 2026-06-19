@@ -10,7 +10,7 @@
 // Member_4: ID | NAME | EMAIL | PHONE
 // *********************************************************
 // Task Distribution
-// Member_1: Radix Sort (radix_sort.cpp, radix_sort_step.cpp)
+// Member_1: Radix Sort and Hash Table Search (radix_sort.cpp, radix_sort_step.cpp, hash_table_search.cpp, hash_table_search_step.cpp)
 // Member_2: Implement dataset generator.
 // Member_3:
 // Member_4:
@@ -45,7 +45,7 @@ int main() {
 
     long long n;
 
-    n = 7;   // Change this line for each run
+    n = 50000000;   // Change this line for each run
 
     if (n <= 0 || n > 9000000000LL) {
         cout << "Error: Dataset size must be from 1 to 9000000000." << endl;
