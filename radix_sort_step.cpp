@@ -5,13 +5,13 @@
 // Tutorial Class: T12L
 // Trimester: 2610
 // Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
-// Member_2: ID | NAME | EMAIL | PHONE
+// Member_2: 242UC19643 | TOO JUN CHEN | TOO.JUN.CHEN@student.mmu.edu.my | 0123456789
 // Member_3: ID | NAME | EMAIL | PHONE
 // Member_4: ID | NAME | EMAIL | PHONE
 // *********************************************************
 // Task Distribution
 // Member_1: Radix Sort and Hash Table Search (radix_sort.cpp, radix_sort_step.cpp, hash_table_search.cpp, hash_table_search_step.cpp)
-// Member_2:
+// Member_2: Implement dataset generator.
 // Member_3:
 // Member_4:
 // *********************************************************
