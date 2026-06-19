@@ -10,7 +10,7 @@
 // Member_4: ID | NAME | EMAIL | PHONE
 // *********************************************************
 // Task Distribution
-// Member_1: Radix Sort (radix_sort.cpp, radix_sort_step.cpp)
+// Member_1: Radix Sort and Hash Table Search (radix_sort.cpp, radix_sort_step.cpp, hash_table_search.cpp, hash_table_search_step.cpp)
 // Member_2:
 // Member_3:
 // Member_4:
