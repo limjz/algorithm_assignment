@@ -1,18 +1,20 @@
-// *********************************************************
-// Program: heap_sort.cpp
+// *******************
+// Program: dataset_generator.cpp
 // Course: CCP6214 Algorithm Design and Analysis
 // Lecture Class: TC4L
 // Tutorial Class: T13L
 // Trimester: 2610
 // Member_1: 242UC244PS | LIM JUN ZHAO | LIM.JUN.ZHAO@student.mmu.edu.my | 0126010726
-// Member_2: 242UC244SJ | KHOO SHEN ZHI | khoo.shen.zhi@student.mmu.edu.my | 01136735033
-// Member_3: ID | NAME | EMAIL | PHONE
-// Member_4: ID | NAME | EMAIL | PHONE
-// *********************************************************
+// Member_2: 242UC19643 | TOO JUN CHEN | TOO.JUN.CHEN@student.mmu.edu.my | 0123456789
+// Member_3: 242UC244SJ | KHOO SHEN ZHI | KHOO.SHEN.ZHI@student.mmu.edu.my | 01136735033
+// Member_4: 243UC247DT| THASSVEEN A/L VIJAYABASKAR| THASSVEEN.VIJAYABASKAR@student.mmu.edu.my | 0126276679
+// *******************
 // Task Distribution
-// Member_1: Radix Sort & File Utilities
-// Member_2: Heap Sort Algorithm Implementation 
-// *********************************************************
+// Member_1: Radix Sort and Hash Table Search (radix_sort.cpp, radix_sort_step.cpp, hash_table_search.cpp, hash_table_search_step.cpp)
+// Member_2: Implement dataset generator.
+// Member_3: Implement heap_sort and heap_sort_step
+// Member_4: Hash Table Search (hash_table_search.cpp, hash_table_search_step.cpp)
+// *******************
 
 #include <iostream>
 #include <fstream>
