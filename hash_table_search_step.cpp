@@ -124,7 +124,7 @@ int main() {
 
     // Target FOUND 
     // Output file name: dataset_1000_hash_table_search_step_2008864030.txt
-    string foundOutputFilename = "CSV_output\\" + datasetBase + "_hash_table_search_step_" + to_string(foundKey) + ".txt";
+    string foundOutputFilename = "CSV_output/" + datasetBase + "_hash_table_search_step_" + to_string(foundKey) + ".txt";
     ofstream foundFile(foundOutputFilename);
 
     if (!foundFile.is_open()) {
@@ -141,7 +141,7 @@ int main() {
     // Target NOT FOUND
     // Output file name: dataset_1000_hash_table_search_step_123456789.txt
 
-    string notFoundOutputFilename = "CSV_output\\" + datasetBase + "_hash_table_search_step_" + to_string(notFoundKey) + ".txt";
+    string notFoundOutputFilename = "CSV_output/" + datasetBase + "_hash_table_search_step_" + to_string(notFoundKey) + ".txt";
     ofstream notFoundFile(notFoundOutputFilename);
     if (!notFoundFile){
         cout << "Error creating output file " << notFoundOutputFilename << endl;
