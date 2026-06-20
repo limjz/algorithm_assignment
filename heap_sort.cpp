@@ -133,7 +133,7 @@ void writeTime (string filename, double elapsedTime, int inputSize) {
 
 int main() {
     /* ========= CHANGE INPUT VALUES HERE ============= */
-    string datasetName = "dataset_50000000.csv";
+    string datasetName = "dataset_10000.csv";
     
     string inputFile = "CSV_dataset\\" + datasetName;  // construct full path to input file
 

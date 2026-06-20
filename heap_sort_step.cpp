@@ -132,16 +132,11 @@ vector<Record> readCSV(string filename, int startRow, int endRow) {
 
 int main() {
 
-    /* ========= CHANGE INPUT VALUES HERE ============= */
-    string datasetName = "dataset_100000.csv";
+    string datasetName = "dataset_1000.csv";
     int startRow = 1;
     
-    // Automatically parse endRow from the filename to match teammate's pattern
-    // NOTE: Keep an eye on this value! If datasetName is dataset_7000000.csv, 
-    // it will try to load 7,000,000 lines into your step file, printing millions of lines.
-    // For small test runs, you can manually override endRow to 7 or 10 as shown below.
-    int endRow = stoi(datasetName.substr(datasetName.find("dataset_") + 8, datasetName.find(".csv") - datasetName.find("dataset_") - 8));
-    // int endRow = 7; // <- Uncomment this line when doing quick step validation tests!
+    // int endRow = stoi(datasetName.substr(datasetName.find("dataset_") + 8, datasetName.find(".csv") - datasetName.find("dataset_") - 8));
+    int endRow = 7;
 
     string inputFile = "CSV_dataset\\" + datasetName;
 
